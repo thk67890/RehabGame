@@ -4,12 +4,12 @@ window.addEventListener('load', function(){
     canvas.width = 800;
     canvas.height = 720;
     
-    let obstacles = []
+    let obstacles = [];
     let score = 0;
     let gameOver = false;
 
     class InputHandler {
-        constructor(){
+        constructor() {
             this.keys = [];
             window.addEventListener('keydown', e => {
                 if((e.key == 'ArrowDown' || 
@@ -19,18 +19,15 @@ window.addEventListener('load', function(){
                     this.keys.indexOf(e.key) === -1) {
                     this.keys.push(e.key);
                 }
-
             });
 
             window.addEventListener('keyup', e => {
-                if(e.key == 'ArrowDown' || 
-                   e.key == 'ArrowUp' || 
-                   e.key == 'ArrowLeft' || 
-                   e.key == 'ArrowRight') {
-                this.keys.splice(this.keys.indexOf(e.key), 1);
-                
+                if (e.key === 'ArrowDown' || 
+                    e.key === 'ArrowUp' || 
+                    e.key === 'ArrowLeft' || 
+                    e.key === 'ArrowRight') {
+                    this.keys.splice(this.keys.indexOf(e.key), 1);
                 }
-
             });
         }
     }
@@ -50,6 +47,8 @@ window.addEventListener('load', function(){
             this.speed = 0;
             this.vy = 0;
             this.weight = 0;
+            this.frameTimer = 0;
+            this.frameInterval = 1000 / 20;
         }
 
         draw(context){
@@ -61,8 +60,8 @@ window.addEventListener('load', function(){
             obstacles.forEach(obstacle => {
                 const dx = (obstacle.x + obstacle.width/2) - (this.x + this.width/2);
                 const dy = (obstacle.y + obstacle.height/2) - (this.y + this.height/2);
-                const distance = Math.sqrt(dx * dx+dy * dy);
-                if(distance < obstacle.width/2 + this.width/2) {
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if(distance < obstacle.width / 2 + this.width / 2) {
                     gameOver = true;
                 }
             });
@@ -82,19 +81,19 @@ window.addEventListener('load', function(){
             } else if(input.keys.indexOf('ArrowLeft') > -1) {
                 this.speed = -5;
             } else if(input.keys.indexOf('ArrowUp') > -1 && this.onGround()) {
-                this.vy -=32;
+                this.vy -= 32;
             } else {
                 this.speed = 0;
             }
 
             //horizontal movement
-            this. x+= this.speed;
+            this.x += this.speed;
             if (this.x < 0) this.x = 0;
             else if (this.x > this.gameWidth - this.width) this.x = this.gameWidth - this.width;
 
             //vertical movement
             this.y += this.vy;
-            if (!this.onGround()){
+            if (!this.onGround()) {
                 this.vy += this.weight;
                 this.maxFrame = 5;
                 this.frameY = 1;
@@ -103,22 +102,21 @@ window.addEventListener('load', function(){
                 this.maxFrame = 8;
                 this.frameY = 0;
             }
-            if (this.y > this.gameHeight - this.height) this.y = this.gameHeight - this.height
+            if (this.y > this.gameHeight - this.height) this.y = this.gameHeight - this.height;
         }
 
-        onGround(){
+        onGround() {
             return this.y >= this.gameHeight - this.height;
         }
-
     }
 
     class Background {
         constructor(gameWidth, gameHeight) {
             this.gameWidth = gameWidth;
             this.gameHeight = gameHeight;
-            this.image = document .getElementById('backgroundImage');
-            this.x=0;
-            this.y=0;
+            this.image = document.getElementById('backgroundImage');
+            this.x = 0;
+            this.y = 0;
             this.width = 16384;
             this.height = 4267;
             this.speed = 20;
@@ -138,7 +136,7 @@ window.addEventListener('load', function(){
     }
 
     class Obstacle {
-        constructor(gameWidth, gameHeight){
+        constructor(gameWidth, gameHeight) {
             this.gameWidth = gameWidth;
             this.gameHeight = gameHeight
             this.width = 160;
@@ -153,7 +151,6 @@ window.addEventListener('load', function(){
             this.speed = 8;
             this.markedForDeletion = false;
             this.frameX = 0;
-
         }
         
         draw(context) {
@@ -161,16 +158,16 @@ window.addEventListener('load', function(){
         }
 
         update(deltaTime) {
-            if(this.frameTimer > this.frameInterval) {
-                if(this.frameX >= this.maxFrame) this.frameX = 0;
+            if (this.frameTimer > this.frameInterval) {
+                if (this.frameX >= this.maxFrame) this.frameX = 0;
                 else this.frameX++;
                 this.frameTimer = 0;
             } else {
-                this.frameTimer += deltaTimer;
+                this.frameTimer += deltaTime;
             }
 
             this.x -= this.speed;
-            if(this.x < 0 - this.width) {
+            if (this.x < 0 - this.width) {
                 this.markedForDeletion = true;
                 score++;
             }
@@ -178,10 +175,9 @@ window.addEventListener('load', function(){
     }
 
     //obstacles.push(new Obstacle(canvas.width , canvas.height));
-    function handleObstacle(deltaTime) {
-        if (obstacleTimer > obstacleIntercal + randomObstacleInterval) {
-            obstacle.push(new Obstacle(canvas.width, canvas.height));
-            console.log(enemies);
+    function handleObstacles(deltaTime) {
+        if (obstacleTimer > obstacleInterval + randomObstacleInterval) {
+            obstacles.push(new Obstacle(canvas.width, canvas.height));
             randomObstacleInterval = Math.random() * 1000 + 500;
             obstacleTimer = 0;
         } else {
@@ -191,7 +187,6 @@ window.addEventListener('load', function(){
         obstacles.forEach(obstacle => {
             obstcale.draw(ctx);
             obstacle.update(daltaTime);
-
         });
 
         obstacles = obstacles.filter(obstacle => !osbtacle.markedForDeletion);
