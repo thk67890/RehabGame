@@ -1,9 +1,9 @@
-body{
+body {
     background: black;
     margin: 0;
 }
 
-#canvas1{
+#canvas1 {
     position: absolute;
     top:50%;
     left:50%;
