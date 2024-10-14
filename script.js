@@ -35,19 +35,19 @@ window.addEventListener('load', function() {
         constructor(gameWidth, gameHeight) {
             this.gameWidth = gameWidth;
             this.gameHeight = gameHeight;
-            this.width = 100; // Reduced width
-            this.height = 100; // Reduced height
+            this.width = 130; // Reduced width
+            this.height = 187; // Reduced height
             this.x = 0;
             this.y = this.gameHeight - this.height; // Align to the bottom of the canvas
             this.image = document.getElementById('playerImage');
-            this.frameX = 0;
-            this.maxFrame = 0;
-            this.frameY = 0;
+            //this.frameX = 0;
+            //this.maxFrame = 0;
+            //this.frameY = 0;
             this.speed = 0;
-            this.vy = 0;
-            this.weight = 1; // Added weight to allow falling
-            this.frameTimer = 0; // Added frameTimer
-            this.frameInterval = 1000 / 20; // Added frame interval
+            //this.vy = 0;
+            //this.weight = 1; // Added weight to allow falling
+            //this.frameTimer = 0; // Added frameTimer
+            //this.frameInterval = 1000 / 20; // Added frame interval
         }
 
         draw(context) {
@@ -154,17 +154,17 @@ window.addEventListener('load', function() {
         constructor(gameWidth, gameHeight) {
             this.gameWidth = gameWidth;
             this.gameHeight = gameHeight;
-            this.width = 160;
-            this.height = 119;
+            this.width = 90;
+            this.height = 67;
             this.image = document.getElementById('obstacleImage');
             this.x = this.gameWidth - this.width;
             // Align the obstacle to the bottom of the background
             this.y = this.gameHeight - this.height; 
             this.maxFrame = 5;
-            this.fps = 20;
+            //this.fps = 20;
             this.frameTimer = 0;
             this.frameInterval = 1000 / this.fps;
-            this.speed = 8;
+            this.speed = 3;
             this.markedForDeletion = false;
             this.frameX = 0; // Added frameX for animation
         }
