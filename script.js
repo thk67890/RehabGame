@@ -51,7 +51,7 @@ window.addEventListener('load', function() {
         }
 
         draw(context) {
-            context.drawImage(this.image, this.frameX * this.width, this.frameY * this.height, this.width, this.height, this.x, this.y, this.width, this.height);
+            context.drawImage(this.image, this.width, this.height, this.width, this.height, this.x, this.y, this.width, this.height);
         }
 
         update(input, deltaTime, obstacles) {
