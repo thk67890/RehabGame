@@ -193,7 +193,7 @@ window.addEventListener('load', function() {
     function handleObstacle(deltaTime) {
         if (obstacleTimer > obstacleInterval + randomObstacleInterval) {
             obstacles.push(new Obstacle(canvas.width, canvas.height));
-            randomObstacleInterval = Math.random() * 1000 + 500;
+            randomObstacleInterval = Math.random() * 1000 + 1000;
             obstacleTimer = 0;
         } else {
             obstacleTimer += deltaTime;
