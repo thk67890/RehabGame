@@ -35,8 +35,8 @@ window.addEventListener('load', function() {
         constructor(gameWidth, gameHeight) {
             this.gameWidth = gameWidth;
             this.gameHeight = gameHeight;
-            this.width = 130; // Reduced width
-            this.height = 187; // Reduced height
+            this.width = 121; // Reduced width
+            this.height = 137; // Reduced height
             this.x = 0;
             this.y = this.gameHeight - this.height; // Align to the bottom of the canvas
             this.image = document.getElementById('playerImage');
