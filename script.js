@@ -79,7 +79,7 @@ window.addEventListener('load', function() {
             } else if (input.keys.indexOf('ArrowLeft') > -1) {
                 this.speed = -5;
             } else if (input.keys.indexOf('ArrowUp') > -1 && this.onGround()) {
-                this.vy -= 32; // Jumping effect
+                this.vy -= 20; // Jumping effect
             } else {
                 this.speed = 0;
             }
@@ -228,7 +228,7 @@ window.addEventListener('load', function() {
     let lastTime = 0;
     let obstacleTimer = 0;
     let obstacleInterval = 1000;
-    let randomObstacleInterval = Math.random() * 1000 + 500;
+    let randomObstacleInterval = Math.random() * 1000 + 1000;
 
     function animate(timeStamp) {
         const deltaTime = timeStamp - lastTime;
