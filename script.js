@@ -228,7 +228,7 @@ window.addEventListener('load', function() {
     let lastTime = 0;
     let obstacleTimer = 0;
     let obstacleInterval = 1000;
-    let randomObstacleInterval = Math.random() * 1000 + 2000;
+    let randomObstacleInterval = Math.random() * 3000 + 6000;
 
     function animate(timeStamp) {
         const deltaTime = timeStamp - lastTime;
