@@ -44,14 +44,14 @@ window.addEventListener('load', function() {
             //this.maxFrame = 0;
             //this.frameY = 0;
             this.speed = 0;
-            //this.vy = 0;
-            //this.weight = 1; // Added weight to allow falling
+            this.vy = 0;
+            this.weight = 1; // Added weight to allow falling
             //this.frameTimer = 0; // Added frameTimer
             //this.frameInterval = 1000 / 20; // Added frame interval
         }
 
         draw(context) {
-            context.drawImage(this.image, this.width, this.height, this.width, this.height, this.x, this.y, this.width, this.height);
+            context.drawImage(this.image, 0, 0, this.width, this.height, this.x, this.y, this.width, this.height);
         }
 
         update(input, deltaTime, obstacles) {
