@@ -17,19 +17,15 @@ pose.setOptions({
 
 // Helper function to calculate angle between three points
 function calculateAngle(A, B, C) {
-  const AB = {x: B.x - A.x, y: B.y - A.y};
-  const BC = {x: C.x - B.x, y: C.y - B.y};
 
-  const dotProduct = AB.x * BC.x + AB.y * BC.y;
-  const magnitudeAB = Math.sqrt(AB.x * AB.y + AB.y * AB.y);
-  const magnitudeBC = Math.sqrt(BC.x * BC.x + BC.y * BC.y);
+  const tangentCB = Math.atan2(C.y-B.y,C.x-B.x);
+  const tangentAB = Math.atan2(A.y-B.y,A.x-B.x);
+  const calinit = tangentCB-tangentAB
+  const calvar = (calinit*180)/Math.PI;
+  const calfinal = Math.abs(calvar);
 
-  const cosineAngle = dotProduct / (magnitudeAB * magnitudeBC);
-
-  const angleRadians = Math.acos(cosineAngle);
-  const angleDegrees = (angleRadians * 180) / Math.PI;
-
-  return angleDegrees;
+  
+  return calfinal;
 }
 
 // Callback to draw pose landmarks and connections
