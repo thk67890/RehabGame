@@ -8,12 +8,29 @@ const pose = new Pose({
 });
 
 pose.setOptions({
-  modelComplexity: 1, // 0, 1, or 2 for model complexity (2 being the highest accuracy)
-  smoothLandmarks: true, // Enable smoothing for landmarks
-  enableSegmentation: false, // Disable segmentation for basic tracking
-  minDetectionConfidence: 0.5, // Minimum confidence threshold for detection
-  minTrackingConfidence: 0.5  // Minimum confidence threshold for tracking
+  modelComplexity: 1,
+  smoothLandmarks: true,
+  enableSegmentation: false,
+  minDetectionConfidence: 0.5,
+  minTrackingConfidence: 0.5
 });
+
+// Helper function to calculate angle between three points
+function calculateAngle(A, B, C) {
+  const AB = {x: B.x - A.x, y: B.y - A.y};
+  const BC = {x: C.x - B.x, y: C.y - B.y};
+
+  const dotProduct = AB.x * BC.x + AB.y * BC.y;
+  const magnitudeAB = Math.sqrt(AB.x * AB.y + AB.y * AB.y);
+  const magnitudeBC = Math.sqrt(BC.x * BC.x + BC.y * BC.y);
+
+  const cosineAngle = dotProduct / (magnitudeAB * magnitudeBC);
+
+  const angleRadians = Math.acos(cosineAngle);
+  const angleDegrees = (angleRadians * 180) / Math.PI;
+
+  return angleDegrees;
+}
 
 // Callback to draw pose landmarks and connections
 pose.onResults((results) => {
@@ -26,10 +43,26 @@ pose.onResults((results) => {
 
   // Draw pose landmarks
   if (results.poseLandmarks) {
-    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS,
-                   {color: 'white', lineWidth: 4});
-    drawLandmarks(canvasCtx, results.poseLandmarks,
-                  {color: 'red', lineWidth: 2});
+    // Draw the pose landmarks and connections
+    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: 'white', lineWidth: 4 });
+    drawLandmarks(canvasCtx, results.poseLandmarks, { color: 'red', lineWidth: 2 });
+
+    // Extract hip, knee, and ankle landmarks (right leg in this example)
+    const rightHip = results.poseLandmarks[24];   // Right hip
+    const rightKnee = results.poseLandmarks[26];  // Right knee
+    const rightAnkle = results.poseLandmarks[28]; // Right ankle
+
+    // Ensure landmarks are detected
+    if (rightHip && rightKnee && rightAnkle) {
+      const angle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+      // Display the calculated angle on the canvas
+      canvasCtx.font = "30px Arial";
+      canvasCtx.fillStyle = "white";
+      canvasCtx.fillText(`Angle: ${Math.round(angle)}°`, rightKnee.x * canvasElement.width, rightKnee.y * canvasElement.height - 20);
+
+      console.log("Hip-Knee-Ankle Angle:", angle);
+    }
   }
 
   canvasCtx.restore();
