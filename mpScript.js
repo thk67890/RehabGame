@@ -28,6 +28,8 @@ function calculateAngle(A, B, C) {
   return calfinal;
 }
 
+
+
 // Callback to draw pose landmarks and connections
 pose.onResults((results) => {
   // Clear the canvas
@@ -44,20 +46,25 @@ pose.onResults((results) => {
     drawLandmarks(canvasCtx, results.poseLandmarks, { color: 'red', lineWidth: 2 });
 
     // Extract hip, knee, and ankle landmarks (right leg in this example)
+    const rightShoulder = results.poseLandmark[12]; //RightShoulder
     const rightHip = results.poseLandmarks[24];   // Right hip
     const rightKnee = results.poseLandmarks[26];  // Right knee
     const rightAnkle = results.poseLandmarks[28]; // Right ankle
 
     // Ensure landmarks are detected
     if (rightHip && rightKnee && rightAnkle) {
-      const angle = calculateAngle(rightHip, rightKnee, rightAnkle);
+      const HSangle = calculateAngle(rightHip, rightKnee, rightAnkle);
+      const LRangle = calculateAngle(rightShoulder, rightHip, rightAnkle);
 
       // Display the calculated angle on the canvas
       canvasCtx.font = "30px Arial";
       canvasCtx.fillStyle = "white";
-      canvasCtx.fillText(`Angle: ${Math.round(angle)}°`, rightKnee.x * canvasElement.width, rightKnee.y * canvasElement.height - 20);
+      canvasCtx.fillText(`Hill Slide Angle: ${Math.round(HSangle)}°`, rightKnee.x * canvasElement.width, rightKnee.y * canvasElement.height - 20);
+      canvasCtx.fillText(`Leg Raise Angle: ${Math.round(LRangle)}°`, rightHip.x * canvasElement.width, rightHip.y * canvasElement.height - 20);
 
-      console.log("Hip-Knee-Ankle Angle:", angle);
+      console.log("Hip-Knee-Ankle Angle:", HSangle);
+      console.log("Shoulder-Hip-Ankle Angle:", LRangle);
+      
     }
   }
 
