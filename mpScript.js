@@ -20,7 +20,7 @@ function calculateAngle(A, B, C) {
 
   const tangentCB = Math.atan2(C.y-B.y,C.x-B.x);
   const tangentAB = Math.atan2(A.y-B.y,A.x-B.x);
-  const calinit = tangentCB-tangentAB
+  const calinit = tangentCB-tangentAB;
   const calvar = (calinit*180)/Math.PI;
   const calfinal = Math.abs(calvar);
 
@@ -45,7 +45,7 @@ pose.onResults((results) => {
     drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: 'white', lineWidth: 4 });
     drawLandmarks(canvasCtx, results.poseLandmarks, { color: 'red', lineWidth: 2 });
 
-    // Extract hip, knee, and ankle landmarks (right leg in this example)
+    // Extract shoulder, hip, knee, and ankle landmarks (right side in this example)
     const rightShoulder = results.poseLandmark[12]; //RightShoulder
     const rightHip = results.poseLandmarks[24];   // Right hip
     const rightKnee = results.poseLandmarks[26];  // Right knee
