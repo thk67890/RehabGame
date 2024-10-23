@@ -46,13 +46,13 @@ pose.onResults((results) => {
     drawLandmarks(canvasCtx, results.poseLandmarks, { color: 'red', lineWidth: 2 });
 
     // Extract shoulder, hip, knee, and ankle landmarks (right side in this example)
-    const rightShoulder = results.poseLandmark[12]; //RightShoulder
+    const rightShoulder = results.poseLandmarks[12]; //RightShoulder
     const rightHip = results.poseLandmarks[24];   // Right hip
     const rightKnee = results.poseLandmarks[26];  // Right knee
     const rightAnkle = results.poseLandmarks[28]; // Right ankle
 
     // Ensure landmarks are detected
-    if (rightHip && rightKnee && rightAnkle) {
+    if (rightShoulder && rightHip && rightKnee && rightAnkle) {
       const HSangle = calculateAngle(rightHip, rightKnee, rightAnkle);
       const LRangle = calculateAngle(rightShoulder, rightHip, rightAnkle);
 
