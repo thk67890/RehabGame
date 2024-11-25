@@ -1,0 +1,18 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+video, canvas {
+    position: absolute;
+    bottom: 20px; 
+    right: 20px; 
+    width: 200px; 
+    height: auto;
+    border: 2px solid #fff; 
+    z-index: 10; 
+}
