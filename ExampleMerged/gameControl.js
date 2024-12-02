@@ -50,10 +50,10 @@ window.addEventListener('load', function() {
             this.y = (this.gameHeight - this.height) - verticalOffset;
 
             // Limit movement within canvas boundaries
-            if (this.x < (this.gameWidth / 2 + 300)) this.x = (this.gameWidth / 2);
-            else if (this.x > (this.gameWidth / 2 - 300)) this.x = (this.gameWidth / 2);
+            if (this.x > (this.gameWidth / 2 + 100)) this.x = (this.gameWidth / 2 +100);
+            else if (this.x < (this.gameWidth / 2 - 100)) this.x = (this.gameWidth / 2 - 100);
 
-            if (this.y > (this.gameHeight - this.height + 300)) this.y = (this.gameHeight - this.height + 300);
+            if (this.y > (this.gameHeight - this.height + 10)) this.y = (this.gameHeight - this.height + 10);
             if (this.y < 0) this.y = 0;
 
         
