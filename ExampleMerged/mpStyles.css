@@ -1,0 +1,28 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+input_video, mediapipeCanvas {
+    position: absolute;
+    bottom: 10px; 
+    left: 100px; 
+    width: 500px; 
+    height: auto;
+    border: 2px solid #fff; 
+    z-index: 10; 
+}
+
+canvas1 {
+    position: absolute;
+    top: 0; /* Adjust positioning as needed */
+    left: 0;
+    width: 800px;
+    height: 720px;
+    z-index: 10; /* Higher z-index for game canvas */
+    border: none; /* Remove border for seamless look */
+}
