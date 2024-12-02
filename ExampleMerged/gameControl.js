@@ -53,7 +53,7 @@ window.addEventListener('load', function() {
             if (this.x < (this.gameWidth / 2 + 300)) this.x = (this.gameWidth / 2);
             else if (this.x > (this.gameWidth / 2 - 300)) this.x = (this.gameWidth / 2);
 
-            if (this.y > (this.gameHeight - this.height - 300)) this.y = (this.gameHeight - this.height - 300);
+            if (this.y > (this.gameHeight - this.height + 300)) this.y = (this.gameHeight - this.height + 300);
             if (this.y < 0) this.y = 0;
 
         
