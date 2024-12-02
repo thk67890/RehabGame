@@ -32,7 +32,7 @@ window.addEventListener('load', function() {
             this.gameHeight = gameHeight;
             this.width = 121;
             this.height = 137;
-            this.x = 0;
+            this.x = this.gameWidth / 2;
             this.y = this.gameHeight - this.height;
             this.image = document.getElementById('playerImage');
             this.speed = 0;
@@ -50,10 +50,10 @@ window.addEventListener('load', function() {
             this.y = (this.gameHeight - this.height) - verticalOffset;
 
             // Limit movement within canvas boundaries
-            if (this.x < 0) this.x = 0;
-            else if (this.x > this.gameWidth - this.width) this.x = this.gameWidth - this.width;
+            if (this.x < (this.gameWidth / 2 + 300)) this.x = (this.gameWidth / 2);
+            else if (this.x > (this.gameWidth / 2 - 300)) this.x = (this.gameWidth / 2);
 
-            if (this.y > this.gameHeight - this.height) this.y = this.gameHeight - this.height;
+            if (this.y > (this.gameHeight - this.height - 300)) this.y = (this.gameHeight - this.height - 300);
             if (this.y < 0) this.y = 0;
 
         
