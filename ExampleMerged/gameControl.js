@@ -19,6 +19,7 @@ window.addEventListener('load', function() {
     let rightAnkleX = null;
     let jump = false;
     let forwardMovement = 0;
+    let verticalOffset = 0;
 
     // Background image for scrolling
     const background = new Image();
@@ -35,8 +36,6 @@ window.addEventListener('load', function() {
             this.y = this.gameHeight - this.height;
             this.image = document.getElementById('playerImage');
             this.speed = 0;
-            this.vy = 0;
-            this.weight = 1;
         }
 
         draw(context) {
@@ -44,30 +43,20 @@ window.addEventListener('load', function() {
         }
 
         update(deltaTime) {
-            // Apply jump when right leg is raised
-            if (jump && this.onGround()) {
-                this.vy -= 20;
-            }
 
             // Control forward/backward movement based on leg bend (right ankle)
             this.x += forwardMovement;
+
+            this.y = (this.gameHeight - this.height) - verticalOffset;
 
             // Limit movement within canvas boundaries
             if (this.x < 0) this.x = 0;
             else if (this.x > this.gameWidth - this.width) this.x = this.gameWidth - this.width;
 
-            // Apply gravity and vertical movement
-            this.y += this.vy;
-            if (!this.onGround()) {
-                this.vy += this.weight;
-            } else {
-                this.vy = 0;
-            }
             if (this.y > this.gameHeight - this.height) this.y = this.gameHeight - this.height;
-        }
+            if (this.y < 0) this.y = 0;
 
-        onGround() {
-            return this.y >= this.gameHeight - this.height;
+        
         }
     }
 
@@ -142,7 +131,7 @@ window.addEventListener('load', function() {
         modelComplexity: 1,
         smoothLandmarks: true,
         enableSegmentation: true,
-        minDetectionConfidence: 0.5,
+        minDetectionConfidence: 0.7,
         minTrackingConfidence: 0.5
     });
 
@@ -162,23 +151,32 @@ window.addEventListener('load', function() {
 
         // Draw landmarks and connections
         if (results.poseLandmarks) {
-            drawLandmarks(mediapipeCtx, results.poseLandmarks, { color: 'cyan', lineWidth: 2 });
-            drawConnectors(mediapipeCtx, results.poseLandmarks, POSE_CONNECTIONS, { color: 'magenta', lineWidth: 2 });
+            
+            drawLandmarks(mediapipeCtx, results.selectedLandmarks, { color: 'cyan', lineWidth: 2 });
+            drawConnectors(mediapipeCtx, results.selectedLandmarks, POSE_CONNECTIONS, { color: 'magenta', lineWidth: 2 });
 
+            const rightShoulder = results.poseLandmarks[12];
             const rightHip = results.poseLandmarks[24];
             const rightKnee = results.poseLandmarks[26];
             const rightAnkle = results.poseLandmarks[28];
 
+            const LRlegAngle = calculateAngle(rightShoulder, rightHip, rightAnkle) - 10;
+            
             // Detect leg raise for jump
-            if (rightAnkle.y < rightKnee.y) {
-                jump = true;
+            const minAngle = 50;  // Angle corresponding to normal standing
+            const maxAngle = 100; // Angle corresponding to maximum leg raise
+            const maxOffset = 1000; // Maximum height offset
+            
+            if (LRlegAngle > minAngle && LRlegAngle <= maxAngle) {
+                verticalOffset = (1-((LRlegAngle - minAngle) / (maxAngle - minAngle))) * maxOffset ;
             } else {
-                jump = false;
+                verticalOffset = 0; // Reset offset if leg is not raised
             }
+    
 
             // Control forward/backward based on knee bend
-            const kneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
-            forwardMovement = (kneeAngle - 90) / 5; // Adjust sensitivity here
+            const HSkneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+            forwardMovement = (HSkneeAngle - 90) / 6; // Adjust sensitivity here
 
             // Log current ankle position to track movement
             rightAnkleY = rightAnkle.y;
