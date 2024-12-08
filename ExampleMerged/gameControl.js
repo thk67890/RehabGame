@@ -12,8 +12,13 @@ window.addEventListener('load', function() {
     const backgroundMusic = document.getElementById('backgroundmusic');
     const JumpSFX = this.document.getElementById('jumpSFX');
     
-    backgroundMusic.volume = 0.2;
+    backgroundMusic.volume = 0.1;
     JumpSFX.volume = 1.0;
+
+    document.body.addEventListener('click', () => {
+        backgroundMusic.muted = false;
+        backgroundMusic.play();
+    });
 
     //backgroundMusic.play();
 
