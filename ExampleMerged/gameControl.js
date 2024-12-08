@@ -8,6 +8,15 @@ window.addEventListener('load', function() {
     const mediapipeCanvas = document.getElementById('mediapipeCanvas');
     const mediapipeCtx = mediapipeCanvas.getContext('2d');
 
+    //Audio Integration
+    const backgroundMusic = document.getElementById('backgroundmusic');
+    const JumpSFX = this.document.getElementById('jumpSFX');
+    
+    backgroundMusic.volume = 0.2;
+    JumpSFX.volume = 1.0;
+
+    //backgroundMusic.play();
+
     let obstacles = [];
     let score = 0;
     let gameOver = false;
@@ -51,10 +60,10 @@ window.addEventListener('load', function() {
 
             // Limit movement within canvas boundaries
             if (this.x > (this.gameWidth / 2 + 100)) this.x = (this.gameWidth / 2 +100);
-            else if (this.x < (this.gameWidth / 2 - 100)) this.x = (this.gameWidth / 2 - 100);
+            else if (this.x < (this.gameWidth / 2 - 150)) this.x = (this.gameWidth / 2 - 150);
 
-            if (this.y > (this.gameHeight - this.height + 10)) this.y = (this.gameHeight - this.height + 10);
-            if (this.y < 0) this.y = 0;
+            if (this.y > (this.gameHeight - this.height)) this.y = (this.gameHeight - this.height);
+            if (this.y < (this.gameHeight * (1 / 3))) this.y = this.gameHeight * (1 / 3);
 
         
         }
@@ -77,7 +86,7 @@ window.addEventListener('load', function() {
             this.gameHeight = gameHeight;
             this.width = 100;
             this.height = 100;
-            this.x = Math.random() * (gameWidth - this.width);
+            this.x = gameWidth - this.width //place at the bottom-right corner of the screen
             this.y = gameHeight - this.height; // Align on the bottom of the screen
             this.image = document.getElementById('obstacleImage');
             this.markedForDeletion = false;
@@ -145,15 +154,15 @@ window.addEventListener('load', function() {
         return (angle * 180) / Math.PI;
     }
 
+    let isJumping = false; //setting function to make sure jumpSFX only plays when chacacter leave ground
+
+
     pose.onResults((results) => {
         mediapipeCtx.clearRect(0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
         mediapipeCtx.drawImage(results.image, 0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
 
         // Draw landmarks and connections
         if (results.poseLandmarks) {
-            
-            drawLandmarks(mediapipeCtx, results.selectedLandmarks, { color: 'cyan', lineWidth: 2 });
-            drawConnectors(mediapipeCtx, results.selectedLandmarks, POSE_CONNECTIONS, { color: 'magenta', lineWidth: 2 });
 
             const rightShoulder = results.poseLandmarks[12];
             const rightHip = results.poseLandmarks[24];
@@ -166,11 +175,19 @@ window.addEventListener('load', function() {
             const minAngle = 50;  // Angle corresponding to normal standing
             const maxAngle = 100; // Angle corresponding to maximum leg raise
             const maxOffset = 1000; // Maximum height offset
+
+            
             
             if (LRlegAngle > minAngle && LRlegAngle <= maxAngle) {
                 verticalOffset = (1-((LRlegAngle - minAngle) / (maxAngle - minAngle))) * maxOffset ;
+                if (!isJumping) {
+                    JumpSFX.play();
+                    isJumping = true;
+                }
+
             } else {
                 verticalOffset = 0; // Reset offset if leg is not raised
+                isJumping = false;
             }
     
 
