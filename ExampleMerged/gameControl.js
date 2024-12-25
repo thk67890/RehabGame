@@ -203,8 +203,6 @@ window.addEventListener('load', function() {
         camera.start();
     }
 
-
-
     // Event Listener to Start the Game
     startButton.addEventListener('click', () => {
         startScreen.style.display = 'none';
