@@ -20,10 +20,7 @@ window.addEventListener('load', function() {
     const instructions = document.getElementById('instructions');
 
 
-    document.body.addEventListener('click', () => {
-        backgroundMusic.muted = false;
-        backgroundMusic.play();
-    });
+
 
     //backgroundMusic.play();
 
@@ -202,6 +199,12 @@ window.addEventListener('load', function() {
 
         camera.start();
     }
+    
+    function playBackgroundMusic() {
+        backgroundMusic.muted = false;
+        backgroundMusic.play();
+        
+    }
 
     // Event Listener to Start the Game
     startButton.addEventListener('click', () => {
@@ -210,6 +213,7 @@ window.addEventListener('load', function() {
         backgroundMusic.play();
         initializeCamera();
         animate();
+        playBackgroundMusic();
     });
 
     instructionsButton.addEventListener('click', () => {
