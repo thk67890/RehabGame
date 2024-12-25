@@ -4,16 +4,21 @@ window.addEventListener('load', function() {
     canvas.width = 800;
     canvas.height = 720;
 
-    // MediaPipe canvas for the larger webcam feed
-    const mediapipeCanvas = document.getElementById('mediapipeCanvas');
-    const mediapipeCtx = mediapipeCanvas.getContext('2d');
 
+
+    
     //Audio Integration
     const backgroundMusic = document.getElementById('backgroundmusic');
     const JumpSFX = this.document.getElementById('jumpSFX');
     
     backgroundMusic.volume = 0.1;
     JumpSFX.volume = 1.0;
+
+    const startScreen = document.getElementById('startScreen');
+    const startButton = document.getElementById('startButton');
+    const instructionsButton = document.getElementById('instructionsButton');
+    const instructions = document.getElementById('instructions');
+
 
     document.body.addEventListener('click', () => {
         backgroundMusic.muted = false;
@@ -53,10 +58,10 @@ window.addEventListener('load', function() {
         }
 
         draw(context) {
-            context.drawImage(this.image, 0, 0, this.width, this.height, this.x, this.y, this.width, this.height);
+            context.drawImage(this.image, this.x, this.y, this.width, this.height);
         }
 
-        update(deltaTime) {
+        update() {
 
             // Control forward/backward movement based on leg bend (right ankle)
             this.x += forwardMovement;
@@ -119,6 +124,100 @@ window.addEventListener('load', function() {
         obstacles = obstacles.filter(obstacle => !obstacle.markedForDeletion);
     }
 
+
+    function calculateAngle(A, B, C) {
+        const AB = { x: A.x - B.x, y: A.y - B.y };
+        const CB = { x: C.x - B.x, y: C.y - B.y };
+        const dotProduct = AB.x * CB.x + AB.y * CB.y;
+        const magAB = Math.sqrt(AB.x * AB.x + AB.y * AB.y);
+        const magCB = Math.sqrt(CB.x * CB.x + CB.y * CB.y);
+        const angle = Math.acos(dotProduct / (magAB * magCB));
+        return (angle * 180) / Math.PI;
+    }
+
+
+    async function initializeCamera() {
+        const videoElement = document.querySelector('.input_video');
+        const pose = new Pose({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+        });
+
+        pose.setOptions({ minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+        
+
+
+        let isJumping = false; //setting function to make sure jumpSFX only plays when chacacter leave ground
+
+        pose.onResults((results) => {
+            const mediapipeCanvas = document.getElementById('mediapipeCanvas');
+            const mediapipeCtx = mediapipeCanvas.getContext('2d');
+            mediapipeCtx.clearRect(0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
+            mediapipeCtx.drawImage(results.image, 0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
+
+            // Draw landmarks and connections
+            if (results.poseLandmarks) {
+
+                const rightShoulder = results.poseLandmarks[12];
+                const rightHip = results.poseLandmarks[24];
+                const rightKnee = results.poseLandmarks[26];
+                const rightAnkle = results.poseLandmarks[28];
+
+                const LRlegAngle = calculateAngle(rightShoulder, rightHip, rightAnkle) - 10;
+                
+                // Detect leg raise for jump
+                const minAngle = 50;  // Angle corresponding to normal standing
+                const maxAngle = 100; // Angle corresponding to maximum leg raise
+                const maxOffset = 1000; // Maximum height offset
+
+                
+                
+                if (LRlegAngle > minAngle && LRlegAngle <= maxAngle) {
+                    verticalOffset = (1-((LRlegAngle - minAngle) / (maxAngle - minAngle))) * maxOffset ;
+                    if (!isJumping) {
+                        JumpSFX.play();
+                        isJumping = true;
+                    }
+
+                } else {
+                    verticalOffset = 0; // Reset offset if leg is not raised
+                    isJumping = false;
+                }
+        
+
+                // Control forward/backward based on knee bend
+                const HSkneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+                forwardMovement = (HSkneeAngle - 90) / 6; // Adjust sensitivity here
+
+                // Log current ankle position to track movement
+                rightAnkleY = rightAnkle.y;
+            }
+        });
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {await pose.send({ image: videoElement });
+            }, 
+            width: 640, 
+            height: 480,
+        });
+
+        camera.start();
+    }
+
+
+
+    // Event Listener to Start the Game
+    startButton.addEventListener('click', () => {
+        startScreen.style.display = 'none';
+        backgroundMusic.muted = false;
+        backgroundMusic.play();
+        initializeCamera();
+        animate();
+    });
+
+    instructionsButton.addEventListener('click', () => {
+        instructions.style.display = instructions.style.display === 'none' ? 'block' : 'none';
+    });
+
     // Animation loop
     let lastTime = 0;
     function animate(timeStamp) {
@@ -133,84 +232,6 @@ window.addEventListener('load', function() {
 
         if (!gameOver) requestAnimationFrame(animate);
     }
-    animate(0);
-
-    // MediaPipe Pose Detection
-    const videoElement = document.querySelector('.input_video');
-    const pose = new Pose({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-    });
-
-    pose.setOptions({
-        modelComplexity: 1,
-        smoothLandmarks: true,
-        enableSegmentation: true,
-        minDetectionConfidence: 0.7,
-        minTrackingConfidence: 0.5
-    });
-
-    function calculateAngle(A, B, C) {
-        const AB = { x: A.x - B.x, y: A.y - B.y };
-        const CB = { x: C.x - B.x, y: C.y - B.y };
-        const dotProduct = AB.x * CB.x + AB.y * CB.y;
-        const magAB = Math.sqrt(AB.x * AB.x + AB.y * AB.y);
-        const magCB = Math.sqrt(CB.x * CB.x + CB.y * CB.y);
-        const angle = Math.acos(dotProduct / (magAB * magCB));
-        return (angle * 180) / Math.PI;
-    }
-
-    let isJumping = false; //setting function to make sure jumpSFX only plays when chacacter leave ground
 
 
-    pose.onResults((results) => {
-        mediapipeCtx.clearRect(0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
-        mediapipeCtx.drawImage(results.image, 0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
-
-        // Draw landmarks and connections
-        if (results.poseLandmarks) {
-
-            const rightShoulder = results.poseLandmarks[12];
-            const rightHip = results.poseLandmarks[24];
-            const rightKnee = results.poseLandmarks[26];
-            const rightAnkle = results.poseLandmarks[28];
-
-            const LRlegAngle = calculateAngle(rightShoulder, rightHip, rightAnkle) - 10;
-            
-            // Detect leg raise for jump
-            const minAngle = 50;  // Angle corresponding to normal standing
-            const maxAngle = 100; // Angle corresponding to maximum leg raise
-            const maxOffset = 1000; // Maximum height offset
-
-            
-            
-            if (LRlegAngle > minAngle && LRlegAngle <= maxAngle) {
-                verticalOffset = (1-((LRlegAngle - minAngle) / (maxAngle - minAngle))) * maxOffset ;
-                if (!isJumping) {
-                    JumpSFX.play();
-                    isJumping = true;
-                }
-
-            } else {
-                verticalOffset = 0; // Reset offset if leg is not raised
-                isJumping = false;
-            }
-    
-
-            // Control forward/backward based on knee bend
-            const HSkneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
-            forwardMovement = (HSkneeAngle - 90) / 6; // Adjust sensitivity here
-
-            // Log current ankle position to track movement
-            rightAnkleY = rightAnkle.y;
-        }
-    });
-
-    const camera = new Camera(videoElement, {
-        onFrame: async () => {
-            await pose.send({ image: videoElement });
-        },
-        width: 1280,
-        height: 720
-    });
-    camera.start();
 });

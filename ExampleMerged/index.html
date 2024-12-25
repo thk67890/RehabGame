@@ -13,14 +13,27 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js"></script>
 </head>
 <body>
-    <!-- Main game canvas -->
-    <canvas id="canvas1" width="800" height="720"></canvas>
+    <div id="startScreen">
+        <h1>Recovery Game</h1>
+        <button id="startButton">Start Game</button>
+        <button id="instructionsButton">Instructions</button>
+        <div id="instructions" style="display:none;">
+            <p>Raise your leg to jump and bend your knee to move forward.</p>
+        </div>
+    </div>
+    <div id ="container">
+        <canvas id="canvas1" width="800" height="720"></canvas>
 
-    <!-- MediaPipe feed for pose tracking, made larger (400x300) -->
-    <canvas id="mediapipeCanvas" width="400" height="300" style="position: absolute; bottom: 20px; right: 20px;"></canvas>
+        <!-- MediaPipe feed for pose tracking, made larger (400x300) -->
+        <canvas id="mediapipeCanvas" width="400" height="300" style="position: absolute; bottom: 20px; right: 20px;"></canvas>
+
+    </div>
+    
+    <!-- Main game canvas -->
+
 
     <!-- Hidden video stream for MediaPipe input -->
-    <video class="input_video" style="display:none;"></video>
+    <video class="input_video" style="display:none;" autoplay></video>
 
     <!-- Images -->
     <img id="playerImage" src="player.png" style="display:none;">
