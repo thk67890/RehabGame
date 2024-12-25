@@ -3,6 +3,9 @@ window.addEventListener('load', function() {
     const ctx = canvas.getContext('2d');
     canvas.width = 800;
     canvas.height = 720;
+    const mediapipeCanvas = document.getElementById('mediapipeCanvas');
+    const mediapipeCtx = mediapipeCanvas.getContext('2d');
+
 
 
 
@@ -121,6 +124,20 @@ window.addEventListener('load', function() {
         obstacles = obstacles.filter(obstacle => !obstacle.markedForDeletion);
     }
 
+    // MediaPipe Pose Detection
+    const videoElement = document.querySelector('.input_video');
+    const pose = new Pose({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+    });
+
+    pose.setOptions({
+        modelComplexity: 1,
+        smoothLandmarks: true,
+        enableSegmentation: true,
+        minDetectionConfidence: 0.7,
+        minTrackingConfidence: 0.5
+    });
+    
 
     function calculateAngle(A, B, C) {
         const AB = { x: A.x - B.x, y: A.y - B.y };
@@ -134,20 +151,10 @@ window.addEventListener('load', function() {
 
 
     async function initializeCamera() {
-        const videoElement = document.querySelector('.input_video');
-        const pose = new Pose({
-            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
-        });
-
-        pose.setOptions({ minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-        
-
 
         let isJumping = false; //setting function to make sure jumpSFX only plays when chacacter leave ground
 
         pose.onResults((results) => {
-            const mediapipeCanvas = document.getElementById('mediapipeCanvas');
-            const mediapipeCtx = mediapipeCanvas.getContext('2d');
             mediapipeCtx.clearRect(0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
             mediapipeCtx.drawImage(results.image, 0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
 
@@ -199,12 +206,6 @@ window.addEventListener('load', function() {
 
         camera.start();
     }
-    
-    function playBackgroundMusic() {
-        backgroundMusic.muted = false;
-        backgroundMusic.play();
-        
-    }
 
     // Event Listener to Start the Game
     startButton.addEventListener('click', () => {
@@ -213,7 +214,6 @@ window.addEventListener('load', function() {
         backgroundMusic.play();
         initializeCamera();
         animate();
-        playBackgroundMusic();
     });
 
     instructionsButton.addEventListener('click', () => {

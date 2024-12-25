@@ -64,6 +64,22 @@ input_video, mediapipeCanvas {
 
 canvas1 {
     position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 5;
+}
+
+calibrationCanvas {
+    position: absolute;
     top: 0; /* Adjust positioning as needed */
     left: 0;
     width: 800px;
