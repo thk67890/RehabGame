@@ -225,6 +225,19 @@ window.addEventListener('load', function() {
     });
 
     // Event Listener for Calibration Mode
+    setup.addEventListener('click', () => {
+        startScreen.style.display = 'none';
+        canvas.style.display = 'none';
+        calibration.style.display = 'block';
+        initializeCalibrationMode();
+    });
+
+
+    // Calibration Variables
+    let LRminAngle = 50;  // Default Angle for normal standing
+    let LRmaxAngle = 100; // Default Angle for maximum leg raise
+    let HSMedian = 90;    // Default Angle for knee movement median
+
     let calibrationStage = 'legRaiseMin';
     let calibrationMeasurements = 0;
     let legRaiseMinAngles = [];
