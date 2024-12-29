@@ -3,34 +3,42 @@ window.addEventListener('load', function() {
     const ctx = canvas.getContext('2d');
     canvas.width = 800;
     canvas.height = 720;
+    
     const mediapipeCanvas = document.getElementById('mediapipeCanvas');
     const mediapipeCtx = mediapipeCanvas.getContext('2d');
 
+    const startScreen = document.getElementById('startScreen');
+    const startButton = document.getElementById('startButton');
+    
+    const instructionsButton = document.getElementById('instructionsButton');
+    const instructions = document.getElementById('instructions');
+   
+    const setup = document.getElementById('setupButton');
 
 
 
+    const LRmaxOffset = 1000; // Maximum height offset
+
+
+    const calibration = document.getElementById('calibrationCanvas');
+    calibration.width = 800;
+    calibration.height = 720;
+    
     
     //Audio Integration
     const backgroundMusic = document.getElementById('backgroundmusic');
     const JumpSFX = this.document.getElementById('jumpSFX');
     
+
     backgroundMusic.volume = 0.1;
     JumpSFX.volume = 1.0;
 
-    const startScreen = document.getElementById('startScreen');
-    const startButton = document.getElementById('startButton');
-    const instructionsButton = document.getElementById('instructionsButton');
-    const instructions = document.getElementById('instructions');
-
-
-
-
-    //backgroundMusic.play();
 
     let obstacles = [];
     let score = 0;
     let gameOver = false;
     let backgroundX = 0;
+
 
     // Variables for Mediapipe pose tracking
     let rightAnkleY = null;
@@ -40,10 +48,12 @@ window.addEventListener('load', function() {
     let forwardMovement = 0;
     let verticalOffset = 0;
 
+
     // Background image for scrolling
     const background = new Image();
     background.src = document.getElementById('backgroundImage').src;
 
+    
     // Player class
     class Player {
         constructor(gameWidth, gameHeight) {
@@ -137,7 +147,6 @@ window.addEventListener('load', function() {
         minDetectionConfidence: 0.7,
         minTrackingConfidence: 0.5
     });
-    
 
     function calculateAngle(A, B, C) {
         const AB = { x: A.x - B.x, y: A.y - B.y };
@@ -155,8 +164,8 @@ window.addEventListener('load', function() {
         let isJumping = false; //setting function to make sure jumpSFX only plays when chacacter leave ground
 
         pose.onResults((results) => {
-            mediapipeCtx.clearRect(0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
-            mediapipeCtx.drawImage(results.image, 0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
+            mediapipeCtx.clearRect(0, 0, 800, 720);
+            mediapipeCtx.drawImage(results.image, 0, 0, 800, 720);
 
             // Draw landmarks and connections
             if (results.poseLandmarks) {
@@ -167,16 +176,10 @@ window.addEventListener('load', function() {
                 const rightAnkle = results.poseLandmarks[28];
 
                 const LRlegAngle = calculateAngle(rightShoulder, rightHip, rightAnkle) - 10;
-                
-                // Detect leg raise for jump
-                const minAngle = 50;  // Angle corresponding to normal standing
-                const maxAngle = 100; // Angle corresponding to maximum leg raise
-                const maxOffset = 1000; // Maximum height offset
 
                 
-                
-                if (LRlegAngle > minAngle && LRlegAngle <= maxAngle) {
-                    verticalOffset = (1-((LRlegAngle - minAngle) / (maxAngle - minAngle))) * maxOffset ;
+                if (LRlegAngle > LRminAngle && LRlegAngle <= LRmaxAngle) {
+                    verticalOffset = (1-((LRlegAngle - LRminAngle) / (LRmaxAngle - LRminAngle))) * LRmaxOffset ;
                     if (!isJumping) {
                         JumpSFX.play();
                         isJumping = true;
@@ -190,10 +193,11 @@ window.addEventListener('load', function() {
 
                 // Control forward/backward based on knee bend
                 const HSkneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
-                forwardMovement = (HSkneeAngle - 90) / 6; // Adjust sensitivity here
+                forwardMovement = (HSkneeAngle - HSMedian) / 6; // Adjust sensitivity here
 
                 // Log current ankle position to track movement
                 rightAnkleY = rightAnkle.y;
+
             }
         });
 
@@ -219,6 +223,114 @@ window.addEventListener('load', function() {
     instructionsButton.addEventListener('click', () => {
         instructions.style.display = instructions.style.display === 'none' ? 'block' : 'none';
     });
+
+    // Event Listener for Calibration Mode
+    let calibrationStage = 'legRaiseMin';
+    let calibrationMeasurements = 0;
+    let legRaiseMinAngles = [];
+    let legRaiseMaxAngles = [];
+    let heelSlideAngles = [];
+
+    async function initializeCalibrationMode() {
+        pose.onResults((results) => {
+            mediapipeCtx.clearRect(0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
+            mediapipeCtx.drawImage(results.image, 0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
+
+            if (results.poseLandmarks) {
+                const rightShoulder = results.poseLandmarks[12];
+                const rightHip = results.poseLandmarks[24];
+                const rightKnee = results.poseLandmarks[26];
+                const rightAnkle = results.poseLandmarks[28];
+
+                const LRlegAngle = calculateAngle(rightShoulder, rightHip, rightAnkle);
+                const HSkneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
+
+                switch (calibrationStage) {
+                    case 'legRaiseMin':
+                        displayStageInstructions('Calibrating Leg Raise Minimum Angle');
+                        if (calibrationMeasurements < 3) {
+                            legRaiseMinAngles.push(LRlegAngle);
+                            calibrationMeasurements++;
+                        } else {
+                            calibrationStage = 'legRaiseMax';
+                            calibrationMeasurements = 0;
+                        }
+                        break;
+                    case 'legRaiseMax':
+                        displayStageInstructions('Calibrating Leg Raise Maximum Angle');
+                        if (calibrationMeasurements < 3) {
+                            legRaiseMaxAngles.push(LRlegAngle);
+                            calibrationMeasurements++;
+                        } else {
+                            calibrationStage = 'heelSlide';
+                            calibrationMeasurements = 0;
+                        }
+                        break;
+                    case 'heelSlide':
+                        displayStageInstructions('Calibrating Heel Slide Angles');
+                        if (calibrationMeasurements < 6) {
+                            heelSlideAngles.push(HSkneeAngle);
+                            calibrationMeasurements++;
+                        } else {
+                            finalizeCalibration();
+                        }
+                        break;
+                }
+            }
+        });
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => { await pose.send({ image: videoElement }); },
+            width: 640,
+            height: 480,
+        });
+        camera.start();
+    }
+
+    function finalizeCalibration() {
+        LRminAngle = averageArray(legRaiseMinAngles);
+        LRmaxAngle = averageArray(legRaiseMaxAngles);
+        HSMedian = averageArray(heelSlideAngles);
+
+        console.log('Calibration Complete!');
+        console.log(`LRminAngle: ${LRminAngle}`);
+        console.log(`LRmaxAngle: ${LRmaxAngle}`);
+        console.log(`HSMedian: ${HSMedian}`);
+
+        calibration.style.display = 'none';
+        canvas.style.display = 'block';
+        startScreen.style.display = 'block';
+    }
+
+    function averageArray(arr) {
+        return arr.reduce((sum, value) => sum + value, 0) / arr.length;
+    }
+
+    function displayStageInstructions(text) {
+        const instructionElement = document.getElementById('calibrationInstructions');
+        instructionElement.textContent = text;
+    }
+
+
+function finalizeCalibration(minAngles, maxAngles, heelAngles) {
+    const LRminAngle = averageArray(minAngles);
+    const LRmaxAngle = averageArray(maxAngles);
+    const HSMedian = averageArray(heelAngles);
+
+    console.log('Calibration Complete!');
+    console.log(`LRminAngle: ${LRminAngle}`);
+    console.log(`LRmaxAngle: ${LRmaxAngle}`);
+    console.log(`HSMedian: ${HSMedian}`);
+
+    calibration.style.display = 'none';
+    canvas.style.display = 'block';
+    startScreen.style.display = 'block';
+}
+
+function averageArray(arr) {
+    return arr.reduce((sum, value) => sum + value, 0) / arr.length;
+}
+
 
     // Animation loop
     let lastTime = 0;

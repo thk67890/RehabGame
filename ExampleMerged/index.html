@@ -17,17 +17,19 @@
         <h1>Recovery Game</h1>
         <button id="startButton">Start Game</button>
         <button id="instructionsButton">How to Play</button>
-        <button id="setup">Setup</button>
+        <button id="setupButton">Setup</button>
         <div id="instructions" style="display:none;">
             <p>Raise your leg to jump and bend your knee to move forward.</p>
         </div>
     </div>
-    
-    <canvas id="canvas1" width="800" height="720"></canvas>
-    <!-- MediaPipe feed for pose tracking, made larger (400x300) -->
-    <canvas id="mediapipeCanvas" width="400" height="300" style="position: absolute; bottom: 20px; right: 20px;"></canvas>
 
-    <canvas id="calibrationCanvas" width="800" height="720"></canvas>
+    <canvas id="canvas1" width="800" height="720" style="position:absolute; right: 600px;"></canvas>
+    <!-- MediaPipe feed for pose tracking, made larger (400x300) -->
+    <canvas id="mediapipeCanvas" width="500" height="400" style="position: absolute; bottom: 20px; right: 50px;"></canvas>
+
+    <div id="calibration"></div>
+
+        
     
     <!-- Main game canvas -->
 
