@@ -27,7 +27,7 @@ window.addEventListener('load', function() {
     
     //Audio Integration
     const backgroundMusic = document.getElementById('backgroundmusic');
-    const JumpSFX = this.document.getElementById('jumpSFX');
+    const JumpSFX = document.getElementById('jumpSFX');
     
 
     backgroundMusic.volume = 0.1;
@@ -260,6 +260,7 @@ window.addEventListener('load', function() {
 
                 switch (calibrationStage) {
                     case 'legRaiseMin':
+                        console.log("Stage:LegRaiseMin");
                         displayStageInstructions('Calibrating Leg Raise Minimum Angle');
                         if (calibrationMeasurements < 3) {
                             legRaiseMinAngles.push(LRlegAngle);
@@ -270,6 +271,7 @@ window.addEventListener('load', function() {
                         }
                         break;
                     case 'legRaiseMax':
+                        console.log("Stage:LegRaiseMax");
                         displayStageInstructions('Calibrating Leg Raise Maximum Angle');
                         if (calibrationMeasurements < 3) {
                             legRaiseMaxAngles.push(LRlegAngle);
@@ -280,6 +282,7 @@ window.addEventListener('load', function() {
                         }
                         break;
                     case 'heelSlide':
+                        console.log("Stage:heelSlide");
                         displayStageInstructions('Calibrating Heel Slide Angles');
                         if (calibrationMeasurements < 6) {
                             heelSlideAngles.push(HSkneeAngle);
@@ -300,10 +303,16 @@ window.addEventListener('load', function() {
         camera.start();
     }
 
-    function finalizeCalibration() {
-        LRminAngle = averageArray(legRaiseMinAngles);
-        LRmaxAngle = averageArray(legRaiseMaxAngles);
-        HSMedian = averageArray(heelSlideAngles);
+
+    function averageArray(arr) {
+        return arr.reduce((sum, value) => sum + value, 0) / arr.length;
+    }
+ 
+
+    function finalizeCalibration(minAngles, maxAngles, heelAngles) {
+        LRminAngle = averageArray(minAngles);
+        LRmaxAngle = averageArray(maxAngles);
+        HSMedian = averageArray(heelAngles);
 
         console.log('Calibration Complete!');
         console.log(`LRminAngle: ${LRminAngle}`);
@@ -315,34 +324,6 @@ window.addEventListener('load', function() {
         startScreen.style.display = 'block';
     }
 
-    function averageArray(arr) {
-        return arr.reduce((sum, value) => sum + value, 0) / arr.length;
-    }
-
-    function displayStageInstructions(text) {
-        const instructionElement = document.getElementById('calibrationInstructions');
-        instructionElement.textContent = text;
-    }
-
-
-function finalizeCalibration(minAngles, maxAngles, heelAngles) {
-    const LRminAngle = averageArray(minAngles);
-    const LRmaxAngle = averageArray(maxAngles);
-    const HSMedian = averageArray(heelAngles);
-
-    console.log('Calibration Complete!');
-    console.log(`LRminAngle: ${LRminAngle}`);
-    console.log(`LRmaxAngle: ${LRmaxAngle}`);
-    console.log(`HSMedian: ${HSMedian}`);
-
-    calibration.style.display = 'none';
-    canvas.style.display = 'block';
-    startScreen.style.display = 'block';
-}
-
-function averageArray(arr) {
-    return arr.reduce((sum, value) => sum + value, 0) / arr.length;
-}
 
 
     // Animation loop
