@@ -244,6 +244,16 @@ window.addEventListener('load', function() {
     let legRaiseMaxAngles = [];
     let heelSlideAngles = [];
 
+    function displayStageInstructions(text) {
+        const instructionsElement = document.getElementById('calibrationInstructions');
+        if (instructionsElement) {
+            instructionsElement.innerText = `Calibration Stage: ${text}`;
+        } else {
+            console.warn('Calibration instructions element not found!');
+        }
+    }
+
+
     async function initializeCalibrationMode() {
         pose.onResults((results) => {
             mediapipeCtx.clearRect(0, 0, mediapipeCanvas.width, mediapipeCanvas.height);
@@ -309,10 +319,10 @@ window.addEventListener('load', function() {
     }
  
 
-    function finalizeCalibration(minAngles, maxAngles, heelAngles) {
-        LRminAngle = averageArray(minAngles);
-        LRmaxAngle = averageArray(maxAngles);
-        HSMedian = averageArray(heelAngles);
+    function finalizeCalibration() {
+        LRminAngle = averageArray(legRaiseMinAngles);
+        LRmaxAngle = averageArray(legRaiseMaxAngles);
+        HSMedian = averageArray(heelSlideAngles);
 
         console.log('Calibration Complete!');
         console.log(`LRminAngle: ${LRminAngle}`);
